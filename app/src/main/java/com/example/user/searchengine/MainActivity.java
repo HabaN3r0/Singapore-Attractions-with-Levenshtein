@@ -1,5 +1,6 @@
 package com.example.user.searchengine;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,11 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,7 +40,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView result_bar;
     private String input;
     public String result;
-    private String[][] dictionary = {{"Sentosa", "1.2494041", "103.830321", "RWS", "Resort World Sentosa"}, {"Marina Bay Sands", "1.2828484", "103.8609294", "Marina Bay", "Bay Sands", "Marina", "MBS"}, {"Singapore Flyer", "1.2895301", "103.8632483", "Flyer"}, {"Singapore Zoo", "1.352083", "103.819836", "Zoo"}, {"Vivo City", "1.26463", "103.8207793", "Vivo"}, {"Buddha Tooth Relic Temple", "1.2815901", "103.8443033", "Buddha", "Tooth Relic Temple", "Relic Temple"}, {"Supreme Court & City Hall", "1.2899018", "103.8509197", "City Hall", "Court", "Supreme Court", "Singapore Court"}};
+    private String[][] dictionary = {{"Sentosa", "1.2494041", "103.830321", "RWS", "Resort World Sentosa", "rws"}, {"Marina Bay Sands", "1.2828484", "103.8609294", "Marina Bay", "Bay Sands", "Marina", "MBS", "mbs"}, {"Singapore Flyer", "1.2895301", "103.8632483", "Flyer"}, {"Singapore Zoo", "1.352083", "103.819836", "Zoo", "zoo"}, {"Vivo City", "1.26463", "103.8207793", "Vivo"}, {"Buddha Tooth Relic Temple", "1.2815901", "103.8443033", "Buddha Tooth", "Tooth Relic Temple", "Relic Temple"}, {"Supreme Court & City Hall", "1.2899018", "103.8509197", "City Hall", "Court", "Supreme Court", "Singapore Court"}, {"Ion Orchard", "1.3040258", "103.8319648", "Ion", "ion", "Orchard"}, {"Botanic Gardens", "1.3138397", "103.8159136", "Botanic", "Gardens"}, {"Peranakan Museum", "1.2943669", "103.8490391", "Peranakan", "Museum"}};
     private GoogleMap mMap;
     private double lat = 1.3521;
     private double lng = 103.8198;
@@ -61,12 +64,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onClick(View v) {
                 if (v == enter) {
+                    InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    mgr.hideSoftInputFromWindow(result_bar.getWindowToken(), 0);
                     input = search_bar.getText().toString();
                     result = compare(dictionary, input);
                     result_bar.setText(result);
-                    mMap.addMarker(new MarkerOptions().position(latlng));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
-                    mMap.animateCamera(CameraUpdateFactory.zoomTo(15.0f));
                 }
             }
         });
@@ -112,8 +114,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         lat = Double.parseDouble(dictionary[list_no][1]);
         lng = Double.parseDouble(dictionary[list_no][2]);
-        val = dictionary[list_no][0];
+        if ((input.length()<5 && min>4) || min >= input.length() - 1 || min>7){
+            Toast.makeText(getApplicationContext(),"No match found", Toast.LENGTH_LONG).show();
+            return "";
+        }
+        else val = dictionary[list_no][0];
         latlng = new LatLng(lat,lng);
+//        val = Integer.toString(min) + " " + val;
+        mMap.addMarker(new MarkerOptions().position(latlng));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latlng));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(16.0f));
         return val;
     }
 
